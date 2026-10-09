@@ -50,6 +50,16 @@
   <p class="board-progress">
     <span id="progressText">已经点开 0 / 9</span>
   </p>
+
+  <!-- 看完之后的入口 -->
+  <div class="finale-cta-wrap">
+    <button class="finale-cta" id="finaleCta" type="button">
+      <span class="cta-spark">✦</span>
+      <span id="ctaText">看完点击它</span>
+      <span class="cta-spark">✦</span>
+    </button>
+    <p class="finale-cta-sub" id="ctaSub">都看完了就点它</p>
+  </div>
 </main>
 
 <!-- ============ 弹层：单张内容 ============ -->
@@ -97,6 +107,72 @@
 <audio id="bgm" loop preload="none">
   <source src="music/music.mp3" type="audio/mpeg" />
 </audio>
+
+<!-- ============ 收尾页：小树 + 姻缘牌 + 孔明灯 ============ -->
+<section class="finale" id="finale" hidden>
+  <div class="finale-moon" aria-hidden="true"></div>
+  <div class="stars" id="stars" aria-hidden="true"></div>
+  <div class="finale-glow" aria-hidden="true"></div>
+
+  <button class="finale-close" id="finaleClose" type="button" aria-label="返回">×</button>
+
+  <div class="finale-stage">
+    <svg class="tree" id="tree" viewBox="0 0 800 900" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <defs>
+        <radialGradient id="leafGrad" cx="34%" cy="28%" r="72%">
+          <stop offset="0" stop-color="#a8e884"/>
+          <stop offset="1" stop-color="#4c9a3c"/>
+        </radialGradient>
+        <radialGradient id="leafGrad2" cx="34%" cy="28%" r="72%">
+          <stop offset="0" stop-color="#8ed46a"/>
+          <stop offset="1" stop-color="#357a2c"/>
+        </radialGradient>
+        <linearGradient id="plaqueGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#eccb96"/>
+          <stop offset=".5" stop-color="#d3a464"/>
+          <stop offset="1" stop-color="#b8834a"/>
+        </linearGradient>
+      </defs>
+
+      <g class="tree-parts">
+        <path class="trunk"    d="M400 884 C396 790 390 706 388 622 C386 560 386 494 392 428"/>
+        <path class="trunk-hl" d="M406 880 C402 786 396 704 394 620 C392 558 392 494 398 430"/>
+        <path class="branch" style="--d:.85s" d="M389 604 C432 572 480 522 522 470"/>
+        <path class="branch" style="--d:1.05s" d="M388 662 C350 630 300 590 254 544"/>
+        <path class="branch" style="--d:1.25s" d="M390 532 C426 492 456 432 480 380"/>
+        <path class="branch" style="--d:1.45s" d="M389 562 C356 520 326 470 300 420"/>
+        <path class="branch" style="--d:1.65s" d="M392 470 C394 430 395 382 396 332"/>
+      </g>
+
+      <g class="leaves" id="leaves"></g>
+
+      <!-- 挂着的姻缘牌 -->
+      <g class="plaque" id="plaque" role="button" tabindex="0" aria-label="点击它">
+        <line class="plaque-string" x1="522" y1="470" x2="522" y2="520"/>
+        <g class="plaque-swing">
+          <circle class="plaque-ring" cx="522" cy="527" r="6.5"/>
+          <rect class="plaque-body"  x="482" y="534" width="80" height="152" rx="11"/>
+          <rect class="plaque-inner" x="491" y="543" width="62" height="134" rx="8"/>
+          <text class="plaque-text" x="522" y="582">点</text>
+          <text class="plaque-text" x="522" y="624">击</text>
+          <text class="plaque-text" x="522" y="666">它</text>
+          <circle class="plaque-star" cx="470" cy="546" r="3" style="animation-delay:.2s"/>
+          <circle class="plaque-star" cx="576" cy="600" r="2.6" style="animation-delay:1.1s"/>
+          <circle class="plaque-star" cx="468" cy="648" r="2.4" style="animation-delay:1.9s"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="lantern-layer" id="lanternLayer" aria-hidden="true"></div>
+
+  <p class="finale-hint" id="finaleHint">小树在长……</p>
+
+  <div class="finale-foot" id="finaleFoot" hidden>
+    <button class="ghost-btn" id="finaleReplay" type="button">再看一次</button>
+    <button class="ghost-btn" id="finaleBack" type="button">回去看看</button>
+  </div>
+</section>
 
 <script src="content.js"></script>
 <script src="script.js"></script>

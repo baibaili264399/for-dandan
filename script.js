@@ -538,6 +538,223 @@
     });
   }
 
+  /* =====================================================================
+   *  收尾页：小树长大 → 姻缘牌 → 孔明灯
+   * =================================================================== */
+  const F = (typeof FINALE === 'object' && FINALE) ? FINALE : {};
+  const lanternWords = (typeof LANTERNS !== 'undefined' && Array.isArray(LANTERNS)) ? LANTERNS.slice() : [];
+
+  const finaleEl     = $('finale');
+  const finaleCta    = $('finaleCta');
+  const finaleClose  = $('finaleClose');
+  const finaleReplay = $('finaleReplay');
+  const finaleBack   = $('finaleBack');
+  const finaleFoot   = $('finaleFoot');
+  const finaleHint   = $('finaleHint');
+  const lanternLayer = $('lanternLayer');
+  const plaqueEl     = $('plaque');
+  const treeSvg      = $('tree');
+  const leavesG      = $('leaves');
+  const starsBox     = $('stars');
+
+  /* 叶子的位置：贴着树枝、填满树冠（坐标跟 SVG 的 viewBox 对应） */
+  const LEAF_SPOTS = [
+    /* 五根树枝上 */
+    [420, 585], [452, 558], [482, 528], [508, 498], [524, 468],
+    [356, 634], [322, 606], [288, 578], [258, 548],
+    [412, 502], [432, 464], [452, 426], [472, 392],
+    [362, 528], [338, 486], [316, 450], [302, 424],
+    [393, 436], [394, 398], [395, 360], [396, 336],
+    /* 树冠填空 */
+    [330, 350], [362, 330], [400, 318], [438, 332], [470, 356], [500, 392], [530, 428], [556, 462],
+    [300, 392], [276, 430], [262, 478], [272, 520], [300, 556], [336, 584],
+    [372, 600], [414, 592], [452, 570], [486, 540], [516, 506], [540, 470],
+    [346, 392], [382, 368], [420, 382], [456, 412], [484, 448], [508, 486]
+  ];
+
+  let finaleTimers = [];
+  let lanternTimer = null;
+  let lanternIdx = 0;
+
+  function later(fn, ms) { finaleTimers.push(setTimeout(fn, ms)); }
+  function clearFinaleTimers() {
+    finaleTimers.forEach(clearTimeout);
+    finaleTimers = [];
+    if (lanternTimer) { clearInterval(lanternTimer); lanternTimer = null; }
+  }
+
+  /* 树枝「长」出来：量出每条路径的长度，做成虚线偏移 */
+  function prepareTree() {
+    if (!treeSvg) return;
+    treeSvg.querySelectorAll('.trunk, .trunk-hl, .branch').forEach((p) => {
+      const len = p.getTotalLength ? p.getTotalLength() : 0;
+      if (!len) return;
+      p.style.strokeDasharray = len + ' ' + len;
+      p.style.strokeDashoffset = len;
+    });
+  }
+  function growTree() {
+    if (!treeSvg) return;
+    treeSvg.querySelectorAll('.trunk, .trunk-hl, .branch').forEach((p) => { p.style.strokeDashoffset = '0'; });
+  }
+
+  function buildLeaves() {
+    if (!leavesG || leavesG.childElementCount) return;
+    const NS = 'http://www.w3.org/2000/svg';
+    const addLeaf = (cx, cy, rx, ry, rot, delay, dark) => {
+      const el = document.createElementNS(NS, 'ellipse');
+      el.setAttribute('cx', cx);
+      el.setAttribute('cy', cy);
+      el.setAttribute('rx', rx);
+      el.setAttribute('ry', ry);
+      el.setAttribute('transform', 'rotate(' + rot + ' ' + cx + ' ' + cy + ')');
+      el.setAttribute('class', dark ? 'leaf leaf-dark' : 'leaf');
+      el.style.animationDelay = delay.toFixed(2) + 's';
+      leavesG.appendChild(el);
+    };
+
+    LEAF_SPOTS.forEach((spot, i) => {
+      const cx = spot[0], cy = spot[1];
+      const rot = ((i * 37) % 70) - 35;
+      addLeaf(cx, cy, 17 + (i % 3) * 2, 8.5 + (i % 2) * 2, rot, 2 + i * 0.04, false);
+      /* 一半的位置再叠一片深色小叶，看起来更厚实 */
+      if (i % 2 === 0) {
+        addLeaf(cx + 9, cy + 13, 12, 6.5, rot + 62, 2.35 + i * 0.04, true);
+      }
+    });
+  }
+
+  function buildStars() {
+    if (!starsBox || starsBox.childElementCount) return;
+    for (let i = 0; i < 46; i++) {
+      const s = document.createElement('i');
+      s.className = 'star';
+      s.style.left = (Math.random() * 100).toFixed(2) + '%';
+      s.style.top = (Math.random() * 62).toFixed(2) + '%';
+      s.style.setProperty('--sz', (1 + Math.random() * 2.2).toFixed(1) + 'px');
+      s.style.animationDelay = (Math.random() * 3.4).toFixed(2) + 's';
+      starsBox.appendChild(s);
+    }
+  }
+
+  function openFinale() {
+    if (!finaleEl) return;
+    clearFinaleTimers();
+    buildStars();
+    prepareTree();
+    buildLeaves();
+
+    if (finaleHint) { finaleHint.hidden = false; finaleHint.textContent = F.hintPlanting || '小树在长……'; }
+    if (finaleFoot) finaleFoot.hidden = true;
+    if (lanternLayer) lanternLayer.innerHTML = '';
+    if (plaqueEl) plaqueEl.classList.remove('is-ready', 'is-pressed');
+
+    finaleEl.hidden = false;
+    document.body.classList.add('is-locked');
+    requestAnimationFrame(() => finaleEl.classList.add('is-open'));
+
+    later(() => finaleEl.classList.add('is-growing'), 140);
+    later(growTree, 260);
+    later(() => {
+      if (plaqueEl) plaqueEl.classList.add('is-ready');
+      if (finaleHint) finaleHint.textContent = F.hintClickPlaque || '点一下那块牌子';
+    }, 3500);
+  }
+
+  function closeFinale() {
+    if (!finaleEl) return;
+    clearFinaleTimers();
+    finaleEl.classList.remove('is-open', 'is-growing');
+    document.body.classList.remove('is-locked');
+    if (lanternLayer) lanternLayer.innerHTML = '';
+    setTimeout(() => { finaleEl.hidden = true; }, 620);
+  }
+
+  /* 让灯从左到右依次升起，横向均匀分布，避免全挤在一侧 */
+  function lanternLeft(index, total) {
+    const span = 78;                                   /* 横向只用 6% ~ 84%，两侧留白 */
+    const slot = span / Math.max(total, 1);
+    const jitter = (Math.random() * 0.5 - 0.25) * slot; /* 每盏再抖一点点，不显得呆板 */
+    return (6 + (index + 0.5) * slot + jitter).toFixed(1) + '%';
+  }
+
+  function makeLantern(text, index, total) {
+    const d = document.createElement('div');
+    d.className = 'lantern';
+    d.style.left = lanternLeft(index, total);
+    /* 起点高度分三档错开，相邻的灯不会挤在一起 */
+    d.style.bottom = (-200 - (index % 3) * 230) + 'px';
+    d.style.setProperty('--dur', (13 + Math.random() * 6).toFixed(1) + 's');
+    d.style.setProperty('--drift', (Math.random() * 80 - 40).toFixed(0) + 'px');
+    d.style.setProperty('--scale', (0.8 + Math.random() * 0.25).toFixed(2));
+    d.innerHTML = '<span class="lantern-body"><span class="lantern-text"></span></span><span class="lantern-flame"></span>';
+
+    /* 在逗号处换行：一句话里的「，」变成一次断行，不会把词从中间切断 */
+    const holder = d.querySelector('.lantern-text');
+    String(text).split(/[，,]/).filter((s) => s.trim()).forEach((part) => {
+      const line = document.createElement('span');
+      line.textContent = part.trim();
+      holder.appendChild(line);
+    });
+    return d;
+  }
+
+  /* 一盏一盏放灯 */
+  function releaseLanterns() {
+    if (!lanternLayer || lanternTimer) return;
+    lanternLayer.innerHTML = '';
+    lanternIdx = 0;
+    const words = lanternWords.length ? lanternWords : ['丹丹，我一直都在'];
+
+    const step = () => {
+      lanternLayer.appendChild(makeLantern(words[lanternIdx % words.length], lanternIdx, words.length));
+      lanternIdx += 1;
+      if (lanternIdx >= words.length) {
+        if (lanternTimer) { clearInterval(lanternTimer); lanternTimer = null; }
+        later(() => { if (finaleFoot) finaleFoot.hidden = false; }, 1400);
+      }
+    };
+
+    step();
+    lanternTimer = setInterval(step, 1150);
+  }
+
+  if (finaleCta) {
+    const ctaText = $('ctaText'), ctaSub = $('ctaSub');
+    if (ctaText && F.ctaText) ctaText.textContent = F.ctaText;
+    if (ctaSub && F.ctaSub) ctaSub.textContent = F.ctaSub;
+    finaleCta.addEventListener('click', openFinale);
+  }
+  if (finaleClose) finaleClose.addEventListener('click', closeFinale);
+  if (finaleBack) finaleBack.addEventListener('click', closeFinale);
+  if (finaleReplay) {
+    if (F.replayText) finaleReplay.textContent = F.replayText;
+    finaleReplay.addEventListener('click', () => {
+      if (finaleFoot) finaleFoot.hidden = true;
+      if (lanternTimer) { clearInterval(lanternTimer); lanternTimer = null; }
+      releaseLanterns();
+    });
+  }
+  if (finaleBack && F.backText) finaleBack.textContent = F.backText;
+
+  if (plaqueEl) {
+    const hitPlaque = () => {
+      if (!plaqueEl.classList.contains('is-ready')) return;   /* 牌子还没挂好 */
+      plaqueEl.classList.add('is-pressed');
+      setTimeout(() => plaqueEl.classList.remove('is-pressed'), 340);
+      if (finaleHint) finaleHint.hidden = true;
+      releaseLanterns();
+    };
+    plaqueEl.addEventListener('click', hitPlaque);
+    plaqueEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); hitPlaque(); }
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && finaleEl && !finaleEl.hidden) closeFinale();
+  });
+
   /* ---------- 启动 ---------- */
   fillCopy();
   renderGrid();

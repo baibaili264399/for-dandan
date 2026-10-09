@@ -573,10 +573,12 @@ body.is-locked { overflow: hidden; }
 }
 .foot-spring { flex: 1 1 auto; }
 
-/* 方框选项页：内容居中，右上角关闭和空页脚都收掉，逼着先挑一个 */
+/* 方框选项页：内容居中，空页脚收掉 */
 .modal-body.is-options { padding-top: clamp(24px, 4vw, 36px); padding-bottom: clamp(26px, 4vw, 40px); }
-.modal-card.is-options .modal-close { display: none; }
 .modal-card.is-options .modal-foot { display: none; }
+/* 注意：选项页的右上角 × 一定要留着，
+   手机上没地方点「返回」，全靠它退出去 */
+.modal-card.is-options .modal-close { display: grid; }
 
 .modal-text.is-options { text-align: center; }
 .modal-text.is-center { text-align: center; }
@@ -594,6 +596,12 @@ body.is-locked { overflow: hidden; }
   gap: clamp(14px, 2.6vw, 22px);
   width: min(100%, 380px);
   margin: 0 auto;
+}
+/* 方框是奇数个时，最后一个单独一行，让它居中而不是偏在左边 */
+.opts > .opt:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - clamp(7px, 1.3vw, 11px));
 }
 
 .opt {
@@ -751,4 +759,363 @@ body.is-locked { overflow: hidden; }
     animation-iteration-count: 1 !important;
     transition-duration: .001ms !important;
   }
+}
+
+/* =======================================================================
+ *  收尾页：小树长大 + 姻缘牌 + 孔明灯
+ * ===================================================================== */
+
+/* ---------- 九宫格下方的醒目入口 ---------- */
+.finale-cta-wrap {
+  margin: clamp(34px, 7vw, 58px) 0 0;
+  text-align: center;
+}
+.finale-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(15px, 2.6vw, 21px) clamp(30px, 6vw, 54px);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: clamp(17px, 3.2vw, 23px);
+  letter-spacing: .18em;
+  color: #6a2a10;
+  background: linear-gradient(135deg, #ffeab0 0%, #ffd07a 46%, #ffb45e 100%);
+  border: 2px solid rgba(186, 118, 38, .45);
+  border-radius: 999px;
+  cursor: pointer;
+  animation: ctaBreath 2.8s ease-in-out infinite;
+  transition: transform .22s cubic-bezier(.34, 1.4, .64, 1);
+}
+.finale-cta:hover { transform: translateY(-4px) scale(1.03); }
+.finale-cta:active { transform: translateY(-1px) scale(.99); }
+.finale-cta:focus-visible { outline: 3px solid rgba(196, 128, 40, .55); outline-offset: 5px; }
+.cta-spark {
+  font-size: .78em;
+  color: #fff8de;
+  animation: sparkTwinkle 1.9s ease-in-out infinite;
+}
+.cta-spark:last-child { animation-delay: .95s; }
+.finale-cta-sub {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  letter-spacing: .2em;
+  color: var(--ink-soft);
+}
+
+@keyframes ctaBreath {
+  0%, 100% {
+    box-shadow: 0 10px 24px rgba(196, 128, 40, .30), inset 0 -3px 0 rgba(176, 108, 28, .26),
+                0 0 0 0 rgba(255, 196, 96, .50);
+  }
+  50% {
+    box-shadow: 0 16px 34px rgba(196, 128, 40, .42), inset 0 -3px 0 rgba(176, 108, 28, .26),
+                0 0 0 18px rgba(255, 196, 96, 0);
+  }
+}
+@keyframes sparkTwinkle {
+  0%, 100% { opacity: .35; transform: scale(.85) rotate(0deg); }
+  50%      { opacity: 1;   transform: scale(1.18) rotate(18deg); }
+}
+
+/* ---------- 全屏夜空 ---------- */
+.finale {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  background: radial-gradient(120% 78% at 50% 112%, #2d3f6b 0%, #182340 46%, #090e1d 100%);
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity .65s ease;
+}
+.finale.is-open { opacity: 1; }
+
+.finale-moon {
+  position: absolute;
+  top: 8%;
+  right: 14%;
+  width: clamp(54px, 9vw, 96px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 34%, #fffdf3 0%, #ffeec4 52%, #f3d79a 100%);
+  box-shadow: 0 0 60px rgba(255, 235, 180, .55), 0 0 140px rgba(255, 220, 150, .3);
+  opacity: .9;
+}
+.stars { position: absolute; inset: 0; pointer-events: none; }
+.star {
+  position: absolute;
+  width: var(--sz, 2px);
+  height: var(--sz, 2px);
+  background: #fff8e4;
+  border-radius: 50%;
+  opacity: .5;
+  animation: twinkle 3.6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .18; transform: scale(.8); }
+  50%      { opacity: .95; transform: scale(1.15); }
+}
+
+.finale-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: min(130vw, 980px);
+  height: 46vh;
+  transform: translateX(-50%);
+  background: radial-gradient(48% 62% at 50% 100%, rgba(255, 208, 128, .22), rgba(255, 208, 128, 0) 72%);
+  pointer-events: none;
+}
+
+.finale-close {
+  position: absolute;
+  top: clamp(12px, 2.4vw, 22px);
+  right: clamp(12px, 2.4vw, 22px);
+  z-index: 6;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  line-height: 1;
+  color: #ffeacb;
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 235, 200, .28);
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: transform .2s, background .2s, color .2s;
+}
+.finale-close:hover { background: rgba(255, 235, 200, .22); transform: rotate(90deg); }
+
+/* ---------- 树的舞台 ---------- */
+.finale-stage {
+  position: relative;
+  z-index: 3;
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.tree {
+  height: min(80vh, 660px);
+  width: auto;
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* 树干与树枝：靠虚线偏移「长」出来，长度在 JS 里量 */
+.trunk,
+.trunk-hl,
+.branch {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.6s ease;
+}
+.trunk    { stroke: #7c5738; stroke-width: 21; }
+.trunk-hl { stroke: #9b6d49; stroke-width: 8; transition-delay: .12s; }
+.branch   { stroke: #8a6444; stroke-width: 11; transition-delay: var(--d, 0s); }
+
+/* 树枝长好后整棵树轻轻摇 */
+.finale.is-growing .tree-parts,
+.finale.is-growing .leaves {
+  animation: treeSway 6.5s 2.6s ease-in-out infinite;
+  transform-origin: 400px 884px;
+}
+.finale.is-growing .tree-parts { animation-delay: 3.4s; }
+@keyframes treeSway {
+  0%, 100% { transform: rotate(-.5deg); }
+  50%      { transform: rotate(.5deg); }
+}
+
+/* 叶子 */
+.leaf {
+  fill: url(#leafGrad);
+  stroke: rgba(40, 80, 30, .22);
+  stroke-width: .8;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: leafPop .72s cubic-bezier(.2, 1.5, .45, 1) forwards;
+}
+.leaf.leaf-dark { fill: url(#leafGrad2); }
+@keyframes leafPop {
+  from { opacity: 0; transform: scale(.2) rotate(-14deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+/* ---------- 姻缘牌 ---------- */
+.plaque {
+  opacity: 0;
+  transform: translateY(-96px);
+  transition: opacity .5s ease, transform 1s cubic-bezier(.2, 1.35, .4, 1);
+  pointer-events: none;
+}
+.plaque.is-ready { opacity: 1; transform: translateY(0); pointer-events: auto; cursor: pointer; }
+.plaque.is-ready .plaque-swing { animation: plaqueSwing 4.4s 1s ease-in-out infinite; transform-origin: 522px 470px; }
+.plaque.is-pressed .plaque-swing { animation: none; transform: scale(.94); transform-origin: 522px 470px; }
+@keyframes plaqueSwing {
+  0%, 100% { transform: rotate(-2.2deg); }
+  50%      { transform: rotate(2.2deg); }
+}
+
+.plaque-string { stroke: #6b4a30; stroke-width: 2.4; }
+.plaque-ring   { fill: none; stroke: #a8763c; stroke-width: 3.4; }
+.plaque-body {
+  fill: url(#plaqueGrad);
+  stroke: #a8763c;
+  stroke-width: 2.6;
+  animation: plaqueGlow 2.3s ease-in-out infinite;
+}
+.plaque-inner {
+  fill: none;
+  stroke: rgba(255, 240, 205, .55);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+}
+@keyframes plaqueGlow {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(255, 206, 110, .55)); }
+  50%      { filter: drop-shadow(0 0 15px rgba(255, 206, 110, .95)); }
+}
+.plaque-text {
+  fill: #6d4423;
+  font-family: "STKaiti", "KaiTi", "楷体", "Microsoft YaHei", serif;
+  font-size: 40px;
+  font-weight: 700;
+  text-anchor: middle;
+  filter: drop-shadow(0 1px 0 rgba(255, 238, 200, .8)) drop-shadow(0 -1px 0 rgba(90, 50, 20, .5));
+}
+.plaque-star { fill: #fff3c8; opacity: 0; animation: plaqueStar 2.6s ease-in-out infinite; }
+@keyframes plaqueStar {
+  0%, 100% { opacity: 0; transform: scale(.5); }
+  50%      { opacity: .95; transform: scale(1.15); }
+}
+
+/* ---------- 提示与底部按钮 ---------- */
+.finale-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(74px, 11vw, 96px);
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  padding: 10px 22px;
+  font-size: clamp(13px, 2.6vw, 15px);
+  letter-spacing: .2em;
+  color: #ffeacb;
+  background: rgba(12, 18, 34, .5);
+  border: 1px solid rgba(255, 235, 200, .2);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  animation: hintPulse 2.6s ease-in-out infinite;
+  white-space: nowrap;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: .62; }
+  50%      { opacity: 1; }
+}
+
+.finale-foot {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(16px, 3vw, 26px);
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+}
+.finale .ghost-btn {
+  color: #ffeacb;
+  background: rgba(255, 255, 255, .07);
+  border-color: rgba(255, 235, 200, .3);
+}
+.finale .ghost-btn:hover { background: rgba(255, 235, 200, .18); border-color: rgba(255, 235, 200, .5); }
+
+/* ---------- 孔明灯 ---------- */
+.lantern-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+}
+.lantern {
+  position: absolute;
+  bottom: -240px;
+  width: clamp(88px, 12vw, 132px);
+  --drift: 30px;
+  --scale: 1;
+  animation: lanternUp var(--dur, 15s) linear forwards;
+  will-change: transform;
+}
+.lantern-body {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1 / 1.16;
+  padding: 12% 9% 16%;
+  border-radius: 50% 50% 44% 44% / 60% 60% 40% 40%;
+  background: radial-gradient(58% 52% at 50% 62%, #fff6d4 0%, #ffd97e 34%, #f0a63c 70%, #d3762a 100%);
+  box-shadow: 0 0 30px rgba(255, 190, 90, .78), inset 0 -16px 22px rgba(190, 86, 18, .35);
+}
+.lantern-text {
+  font-size: clamp(11px, 1.75vw, 14px);
+  line-height: 1.5;
+  font-weight: 700;
+  text-align: center;
+  color: #6b3a10;
+  text-shadow: 0 1px 0 rgba(255, 246, 214, .8);
+}
+/* 逗号处强制换行，免得把词从中间断开 */
+.lantern-text span { display: block; }
+.lantern-flame {
+  display: block;
+  width: 26%;
+  height: 8px;
+  margin: -3px auto 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff3b8 0%, #ffb43c 60%, rgba(255, 150, 40, 0) 100%);
+  filter: blur(.6px);
+}
+@keyframes lanternUp {
+  0%   { transform: translate3d(0, 0, 0) rotate(-2deg) scale(var(--scale)); opacity: 0; }
+  7%   { opacity: 1; }
+  50%  { transform: translate3d(var(--drift), -58vh, 0) rotate(2deg) scale(var(--scale)); opacity: 1; }
+  100% { transform: translate3d(calc(var(--drift) * -1.3), -128vh, 0) rotate(-3deg) scale(var(--scale)); opacity: .9; }
+}
+
+/* 减少动态效果时：灯不飞，改成一片静止的灯墙，字照样看得见 */
+@media (prefers-reduced-motion: reduce) {
+  .lantern-layer {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-end;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 16px 96px;
+  }
+  .lantern {
+    position: static;
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .finale-glow, .finale-moon { display: none; }
+}
+
+/* 手机上的收尾页 */
+@media (max-width: 640px) {
+  .tree { height: min(74vh, 580px); }
+  /* 手机上的灯稍大一点、字稍小一点，一段六个字才放得下 */
+  .lantern { width: 100px; }
+  .lantern-text { font-size: 11px; }
+  .finale-hint { bottom: clamp(66px, 14vw, 88px); letter-spacing: .14em; }
+  .plaque-text { font-size: 38px; }
 }
