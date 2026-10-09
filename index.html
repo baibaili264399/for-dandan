@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#fffaf3" />
+<title>你想知道的一切</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%23ee5f5f'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ 全局装饰光斑 ============ -->
+<div class="glow glow-a" aria-hidden="true"></div>
+<div class="glow glow-b" aria-hidden="true"></div>
+<div class="glow glow-c" aria-hidden="true"></div>
+
+<!-- ============ 顶部工具条 ============ -->
+<header class="topbar" id="topbar" hidden>
+  <button class="icon-btn" id="reloadBtn" type="button" title="改完 content.js 后点我，不用刷新页面">↻ 重载文案</button>
+  <div class="topbar-right">
+    <button class="icon-btn" id="shuffleBtn" type="button" title="随便翻开一张">🎲 随机</button>
+    <button class="icon-btn" id="musicBtn" type="button" aria-pressed="false" title="背景音乐">♪ 音乐</button>
+  </div>
+</header>
+
+<!-- ============ 第 1 屏：封面 ============ -->
+<section class="cover" id="cover">
+  <div class="cover-inner">
+    <p class="cover-to" id="coverTo">给 丹丹</p>
+    <h1 class="cover-title" id="coverTitle">你想知道的一切</h1>
+    <p class="cover-sub" id="coverSub">九个问题，九个答案</p>
+
+    <button class="envelope" id="openBtn" type="button" aria-label="打开">
+      <span class="envelope-body"></span>
+      <span class="envelope-flap"></span>
+      <span class="envelope-heart">♥</span>
+    </button>
+    <p class="cover-hint" id="coverHint">点一下打开</p>
+  </div>
+</section>
+
+<!-- ============ 第 2 屏：九宫格 ============ -->
+<main class="board" id="board" hidden>
+  <div class="board-head">
+    <h2 class="board-title" id="boardTitle">你想知道的一切</h2>
+    <p class="board-sub" id="boardSub">点开任意一格</p>
+  </div>
+  <div class="grid" id="grid"></div>
+  <p class="board-progress">
+    <span id="progressText">已经点开 0 / 9</span>
+  </p>
+</main>
+
+<!-- ============ 弹层：单张内容 ============ -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <article class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+
+    <div class="modal-scroll" id="modalScroll">
+      <figure class="modal-figure">
+        <img id="mImage" src="" alt="" />
+        <figcaption class="modal-caption" id="mCaption"></figcaption>
+      </figure>
+
+      <div class="modal-body">
+        <div class="modal-kicker">
+          <span class="mini-spot" id="mNum">1</span>
+          <span class="kicker-text" id="mKicker">第 <b id="mNum2">1</b> 个答案</span>
+        </div>
+        <h3 class="modal-title" id="mTitle">标题</h3>
+        <div class="modal-text" id="mText"></div>
+      </div>
+    </div>
+
+    <footer class="modal-foot">
+      <button class="ghost-btn" id="backBtn" type="button" hidden>← 返回选项</button>
+      <span class="foot-spring"></span>
+      <button class="ghost-btn" id="prevBtn" type="button">← 上一个</button>
+      <span class="modal-index" id="mIndex">1 / 9</span>
+      <button class="ghost-btn" id="nextBtn" type="button">下一个 →</button>
+    </footer>
+  </article>
+</div>
+
+<!-- ============ 爱心彩蛋 ============ -->
+<button class="heart-btn" id="heartBtn" type="button" title="点我">
+  <span class="heart-icon">♥</span>
+  <span class="heart-count" id="heartCount">0</span>
+</button>
+
+<!-- ============ 轻提示 ============ -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ 背景音乐（把 music/music.mp3 放进去就生效） ============ -->
+<audio id="bgm" loop preload="none">
+  <source src="music/music.mp3" type="audio/mpeg" />
+</audio>
+
+<script src="content.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
